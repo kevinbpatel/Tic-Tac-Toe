@@ -23,13 +23,13 @@ const gameBoard = (function () {
   // add mark function 
   const addMark = (col, row, token) => { 
 
-    board[row][col] = token;
+    board[row][col].addToken(token)
   }
 
   // print board function
   const printBoard = () => { 
     const boardWithCellValues = board.map((row) => row.map((cell) => cell.getValue()))
-    console.log(boardWithCellValues);
+    boardWithCellValues.forEach(row => console.log(...row));
   }
 
   return { getBoard, printBoard, addMark };
@@ -87,7 +87,7 @@ const gameController = (function(
   // print new round function 
   const printNewRound = () => { 
     gameBoard.printBoard();
-    console.log(`${getActivePlayer.name}'s turn.`)
+    console.log(`${getActivePlayer().name}'s turn.`)
 
   }
 
@@ -97,7 +97,7 @@ const gameController = (function(
     console.log(`${getActivePlayer().name}'s placing mark at ${(col, row)}`);
 
     // actually put the mark 
-    addMark(col, row, getActivePlayer().token);
+    gameBoard.addMark(col, row, getActivePlayer().token);
 
     // switch turns and print new round 
     switchPlayerTurn();
@@ -115,15 +115,16 @@ const gameController = (function(
     while (1) {     
     // keep prompting until the user gives a answer of the form x, y and the 
     // coordinates are valid
-      answer = prompt("Enter input");
+      row = prompt(`${getActivePlayer().name}'s turn: Enter x val`);
+      col = prompt(`${getActivePlayer().name}'s turn: Enter y val`);
     
-      // call play round 
+      // call play round
+      playRound(col, row);
 
       // check if someone won 
 
-      // print new round 
-
-      // switch player turn 
+      print(" ");
+      
     }
 
     
@@ -133,7 +134,7 @@ const gameController = (function(
 
 
 
-  return { playRound, getActivePlayer, playGame};
+  return { playRound, getActivePlayer, playGame} ;
 
 
 
