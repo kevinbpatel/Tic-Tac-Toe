@@ -1,5 +1,4 @@
 // create gameboard object (IFFE)
-
 const gameBoard = (function () { 
 
   // define board, rows, and columns 
@@ -22,6 +21,13 @@ const gameBoard = (function () {
 
   // add mark function 
   const addMark = (col, row, token) => { 
+
+    // only add mark if there is no token left
+    if (board[row][col].getValue() !== 0 ||
+        row > 2 || row < 0 || col > 2 || col < 0) {
+      console.log("invalid input. try again");
+      return null;
+    }
 
     board[row][col].addToken(token)
   }
@@ -60,7 +66,6 @@ function createPlayer (name, token) {
 
 
 // create object to control the flow of game (display controller - IIFE)
-
 const gameController = (function(
   playerOneName = "player one", 
   playerTwoName = "player two"
@@ -81,28 +86,80 @@ const gameController = (function(
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
   }
 
-  // get active player function
   const getActivePlayer = () => activePlayer;
 
-  // print new round function 
   const printNewRound = () => { 
-    gameBoard.printBoard();
+    console.log("-------------------------------------------");
     console.log(`${getActivePlayer().name}'s turn.`)
-
+    gameBoard.printBoard();
   }
 
-  // play round function 
-  const playRound = (col, row) => { 
-    // print to console putting mark
-    console.log(`${getActivePlayer().name}'s placing mark at ${(col, row)}`);
+  const playRound = () => { 
+    let row = prompt(`${getActivePlayer().name}'s turn: Enter x val`);
+    let col = prompt(`${getActivePlayer().name}'s turn: Enter y val`);
+      
+    while (gameBoard.addMark(row, col, getActivePlayer().token) === null) { 
+      row = prompt(`${getActivePlayer().name}'s turn: Enter x val`);
+      col = prompt(`${getActivePlayer().name}'s turn: Enter y val`);
+    };
 
-    // actually put the mark 
-    gameBoard.addMark(col, row, getActivePlayer().token);
+    console.log(`${getActivePlayer().name}'s placed mark at (${row}, ${col})`);
 
     // switch turns and print new round 
     switchPlayerTurn();
     printNewRound();
   }
+
+  // check win function 
+  const checkWin = () => { 
+    board = gameBoard.getBoard();
+    const boardVals = board.map((row) => row.map((cell) => cell.getValue()));
+
+    t1 = players[0].token;
+    t2 = players[1].token;
+
+    if ((boardVals[0][0] == t1 && boardVals[0][1] == t1 && boardVals[0][2] == t1) ||
+        (boardVals[1][0] == t1 && boardVals[1][1] == t1 && boardVals[1][2] == t1) ||
+        (boardVals[2][0] == t1 && boardVals[2][1] == t1 && boardVals[2][2] == t1) ||
+        (boardVals[0][0] == t1 && boardVals[1][0] == t1 && boardVals[2][0] == t1) ||
+        (boardVals[0][1] == t1 && boardVals[1][1] == t1 && boardVals[2][1] == t1) ||
+        (boardVals[2][0] == t1 && boardVals[2][1] == t1 && boardVals[2][2] == t1) ||
+        (boardVals[0][0] == t1 && boardVals[1][1] == t1 && boardVals[2][2] == t1) ||
+        (boardVals[0][2] == t1 && boardVals[1][1] == t1 && boardVals[2][0] == t1)) { 
+
+        console.log(`${players[0].name} wins!`);
+        return true;
+    }
+    
+    if ((boardVals[0][0] == t2 && boardVals[0][1] == t2 && boardVals[0][2] == t2) ||
+        (boardVals[1][0] == t2 && boardVals[1][1] == t2 && boardVals[1][2] == t2) ||
+        (boardVals[2][0] == t2 && boardVals[2][1] == t2 && boardVals[2][2] == t2) ||
+        (boardVals[0][0] == t2 && boardVals[1][0] == t2 && boardVals[2][0] == t2) ||
+        (boardVals[0][1] == t2 && boardVals[1][1] == t2 && boardVals[2][1] == t2) ||
+        (boardVals[2][0] == t2 && boardVals[2][1] == t2 && boardVals[2][2] == t2) ||
+        (boardVals[0][0] == t2 && boardVals[1][1] == t2 && boardVals[2][2] == t2) ||
+        (boardVals[0][2] == t2 && boardVals[1][1] == t2 && boardVals[2][0] == t2)) { 
+
+        console.log(`${players[1].name} wins!`);
+        return true;
+    }
+
+    if ((boardVals[0][0] == t1 || boardVals[0][0] == t2) && 
+        (boardVals[0][1] == t1 || boardVals[0][1] == t2) && 
+        (boardVals[0][2] == t1 || boardVals[0][2] == t2) && 
+        (boardVals[1][0] == t1 || boardVals[1][0] == t2) && 
+        (boardVals[1][1] == t1 || boardVals[1][1] == t2) && 
+        (boardVals[1][2] == t1 || boardVals[1][2] == t2) && 
+        (boardVals[2][0] == t1 || boardVals[2][0] == t2) && 
+        (boardVals[2][1] == t1 || boardVals[2][1] == t2) && 
+        (boardVals[2][2] == t1 || boardVals[2][2] == t2)) { 
+        
+        console.log(`${players[0].name} and ${players[1].name} tie!`);
+        return true;
+    }
+
+  }
+
 
   const playGame = () => { 
     
@@ -111,28 +168,21 @@ const gameController = (function(
 
     let answer;
 
-    // while 
-    while (1) {     
-    // keep prompting until the user gives a answer of the form x, y and the 
-    // coordinates are valid
-      row = prompt(`${getActivePlayer().name}'s turn: Enter x val`);
-      col = prompt(`${getActivePlayer().name}'s turn: Enter y val`);
-    
+    while (1) { // 
+
       // call play round
-      playRound(col, row);
+      playRound();
 
       // check if someone won 
+      console.log("\n");
 
-      print(" ");
+
+      if (checkWin() === true) { 
+        break;
+      }
       
     }
-
-    
-    
-
   }
-
-
 
   return { playRound, getActivePlayer, playGame} ;
 
