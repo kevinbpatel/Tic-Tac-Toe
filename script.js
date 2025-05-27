@@ -29,7 +29,7 @@ const gameBoard = (function () {
       return null;
     }
 
-    board[row][col].addToken(token)
+    board[row][col].addToken(token);
   }
 
   // print board function
@@ -38,7 +38,11 @@ const gameBoard = (function () {
     boardWithCellValues.forEach(row => console.log(...row));
   }
 
-  return { getBoard, printBoard, addMark };
+  const resetBoard = () => { 
+    board.forEach((row) => row.forEach((cell => cell.addToken(0))));
+  }
+
+  return { getBoard, printBoard, addMark, resetBoard };
 
 })();
 
@@ -90,20 +94,23 @@ const gameController = (function(
 
   const printNewRound = () => { 
     console.log("-------------------------------------------");
-    console.log(`${getActivePlayer().name}'s turn.`)
+    console.log(`${getActivePlayer().name}'s turn.`);
     gameBoard.printBoard();
   }
 
-  const playRound = () => { 
-    let row = prompt(`${getActivePlayer().name}'s turn: Enter x val`);
-    let col = prompt(`${getActivePlayer().name}'s turn: Enter y val`);
-      
+  const playRound = (row, col) => { 
+
     while (gameBoard.addMark(row, col, getActivePlayer().token) === null) { 
-      row = prompt(`${getActivePlayer().name}'s turn: Enter x val`);
-      col = prompt(`${getActivePlayer().name}'s turn: Enter y val`);
+      alert(`Invalid input. try again.`);
+      return;
     };
 
     console.log(`${getActivePlayer().name}'s placed mark at (${row}, ${col})`);
+
+    winResult = checkWin();
+    if (winResult !== false) { 
+      alert(winResult);
+    }
 
     // switch turns and print new round 
     switchPlayerTurn();
@@ -127,8 +134,7 @@ const gameController = (function(
         (boardVals[0][0] == t1 && boardVals[1][1] == t1 && boardVals[2][2] == t1) ||
         (boardVals[0][2] == t1 && boardVals[1][1] == t1 && boardVals[2][0] == t1)) { 
 
-        console.log(`${players[0].name} wins!`);
-        return true;
+        return `${players[0].name} wins!`;
     }
     
     if ((boardVals[0][0] == t2 && boardVals[0][1] == t2 && boardVals[0][2] == t2) ||
@@ -140,8 +146,7 @@ const gameController = (function(
         (boardVals[0][0] == t2 && boardVals[1][1] == t2 && boardVals[2][2] == t2) ||
         (boardVals[0][2] == t2 && boardVals[1][1] == t2 && boardVals[2][0] == t2)) { 
 
-        console.log(`${players[1].name} wins!`);
-        return true;
+        return `${players[1].name} wins!`;
     }
 
     if ((boardVals[0][0] == t1 || boardVals[0][0] == t2) && 
@@ -154,40 +159,78 @@ const gameController = (function(
         (boardVals[2][1] == t1 || boardVals[2][1] == t2) && 
         (boardVals[2][2] == t1 || boardVals[2][2] == t2)) { 
         
-        console.log(`${players[0].name} and ${players[1].name} tie!`);
-        return true;
+        return `${players[0].name} and ${players[1].name} tie!`;
     }
+
+    return false;
 
   }
 
-
-  const playGame = () => { 
-    
-    // print new round
-    printNewRound();
-
-    let answer;
-
-    while (1) { // 
-
-      // call play round
-      playRound();
-
-      // check if someone won 
-      console.log("\n");
-
-
-      if (checkWin() === true) { 
-        break;
-      }
-      
-    }
-  }
-
-  return { playRound, getActivePlayer, playGame} ;
-
-
-
+  return { playRound, getActivePlayer };
+  
 })();
 
-gameController.playGame();
+
+function ScreenController() { 
+  const playerTurnDiv = document.querySelector('.turn');
+  const boardDiv = document.querySelector('.board');
+  const startResetBtn = document.querySelector('.start-reset');
+
+  // update screen method 
+  const updateScreen = () => { 
+
+    // clear the board 
+    boardDiv.textContent = "";
+
+    // get the most up date board from game controller 
+    const board = gameBoard.getBoard();
+    const activePlayer = gameController.getActivePlayer();
+
+    // get active player and render it 
+    playerTurnDiv.textContent = `${activePlayer.name}'s turn`;
+    
+    // render each grid square in the DOM
+    board.forEach((row, rowNum) => {
+      row.forEach((cell, colNum) => {
+
+        // add cells that also act as buttons 
+        const cellButton = document.createElement("button");
+
+        // add data to cells to identify the columns 
+        cellButton.dataset.column = colNum;
+        cellButton.dataset.row = rowNum;
+        cellButton.textContent = cell.getValue();
+        boardDiv.appendChild(cellButton);
+    
+      })
+    })
+  }
+
+  // board event listener 
+  function clickHandlerBoard(e) { 
+
+    const selectedColumn = e.target.dataset.column;
+    const selectedRow = e.target.dataset.row;
+
+    // if column was clicked, don't do anything 
+    if (!selectedColumn) return;
+
+    gameController.playRound(selectedColumn, selectedRow)
+    updateScreen();
+  }
+
+  function resetGame() { 
+    gameBoard.resetBoard();
+    updateScreen();
+  }
+
+  boardDiv.addEventListener("click", clickHandlerBoard);  
+  startResetBtn.addEventListener("click", resetGame);
+
+  updateScreen();
+
+
+}
+
+
+ScreenController();
