@@ -212,22 +212,9 @@ function ScreenController() {
     })
   }
 
-  //
-  // const greyOutBoard = () => { 
-  //   const board = gameBoard.getBoard();
-
-  //   board.forEach((row, rowNum) => {
-  //     row.forEach((cell, colNum) => {
-
-  //       cellButton = document.querySelector()
-  //       cellButton.dataset.column = colNum;
-  //       cellButton.dataset.row = rowNum;
-  //       cellButton.textContent = cell.getValue();
-  //       boardDiv.appendChild(cellButton);
-
-  //     })
-  //   })
-  // }
+  const removeBoard = () => { 
+    boardDiv.setAttribute("style", "display: none");
+  }
 
   // board event listener 
   function clickHandlerBoard(e) {
@@ -293,6 +280,9 @@ function ScreenController() {
 
     // close dialog 
     playerNamesDialog.close();
+
+    boardDiv.removeAttribute("style", "display: none");
+    updateScreen();
   });
 
   // grey out the tic tac toe board TODO:
@@ -301,6 +291,7 @@ function ScreenController() {
   resetBtn.setAttribute("style", "display: none");
   playerTurnDiv.setAttribute("style", "display: none");
   updateScreen();
+  removeBoard();
 }
 
 
