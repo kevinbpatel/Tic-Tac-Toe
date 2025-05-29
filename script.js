@@ -1,5 +1,5 @@
 // create gameboard object (IFFE)
-const gameBoard = (function () { 
+const gameBoard = (function () {
 
   // define board, rows, and columns 
   const board = []
@@ -9,7 +9,7 @@ const gameBoard = (function () {
   // create gameboard array 
   for (let i = 0; i < rows; i++) {
     board[i] = [];
-    for (let j = 0; j < columns; j++) { 
+    for (let j = 0; j < columns; j++) {
 
       board[i][j] = Cell();
     }
@@ -20,11 +20,11 @@ const gameBoard = (function () {
   const getBoard = () => board;
 
   // add mark function 
-  const addMark = (col, row, token) => { 
+  const addMark = (col, row, token) => {
 
     // only add mark if there is no token left
     if (board[row][col].getValue() !== 0 ||
-        row > 2 || row < 0 || col > 2 || col < 0) {
+      row > 2 || row < 0 || col > 2 || col < 0) {
       console.log("invalid input. try again");
       return null;
     }
@@ -33,12 +33,12 @@ const gameBoard = (function () {
   }
 
   // print board function
-  const printBoard = () => { 
+  const printBoard = () => {
     const boardWithCellValues = board.map((row) => row.map((cell) => cell.getValue()))
     boardWithCellValues.forEach(row => console.log(...row));
   }
 
-  const resetBoard = () => { 
+  const resetBoard = () => {
     board.forEach((row) => row.forEach((cell => cell.addToken(0))));
   }
 
@@ -49,11 +49,11 @@ const gameBoard = (function () {
 
 // create cell factory function to create cell objects that have value 0, 1, 
 // or 2 
-function Cell() { 
+function Cell() {
 
   let value = 0;
 
-  const addToken = (player) => { 
+  const addToken = (player) => {
     value = player;
   };
 
@@ -64,43 +64,50 @@ function Cell() {
 
 
 // create player object (factory function)
-function createPlayer (name, token) { 
+function createPlayer(name, token) {
   return { name, token };
 }
 
 
 // create object to control the flow of game (display controller - IIFE)
-const gameController = (function(
-  playerOneName = "player one", 
-  playerTwoName = "player two"
-) { 
+const gameController = (function () {
 
   // create players list 
-
   const players = [
-    createPlayer(playerOneName, 1), 
-    createPlayer(playerTwoName, 2)
-  ]
+    {
+      name: "player one",
+      token: 1
+    },
+    {
+      name: "player two",
+      token: 2
+    }
+  ];
 
   // set active player randomly
   let activePlayer = players[Math.round(Math.random())];
 
+  const setPlayerNames = (playerOneName, playerTwoName) => {
+    players[0].name = playerOneName;
+    players[1].name = playerTwoName;
+  }
+
   // switch player turn function 
-  const switchPlayerTurn = () => { 
+  const switchPlayerTurn = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
   }
 
   const getActivePlayer = () => activePlayer;
 
-  const printNewRound = () => { 
+  const printNewRound = () => {
     console.log("-------------------------------------------");
     console.log(`${getActivePlayer().name}'s turn.`);
     gameBoard.printBoard();
   }
 
-  const playRound = (row, col) => { 
+  const playRound = (row, col) => {
 
-    while (gameBoard.addMark(row, col, getActivePlayer().token) === null) { 
+    while (gameBoard.addMark(row, col, getActivePlayer().token) === null) {
       alert(`Invalid input. try again.`);
       return;
     };
@@ -108,17 +115,19 @@ const gameController = (function(
     console.log(`${getActivePlayer().name}'s placed mark at (${row}, ${col})`);
 
     winResult = checkWin();
-    if (winResult !== false) { 
-      alert(winResult);
+    if (winResult !== false) {
+      return winResult;
     }
 
     // switch turns and print new round 
     switchPlayerTurn();
     printNewRound();
+
+    return false;
   }
 
   // check win function 
-  const checkWin = () => { 
+  const checkWin = () => {
     board = gameBoard.getBoard();
     const boardVals = board.map((row) => row.map((cell) => cell.getValue()));
 
@@ -126,69 +135,66 @@ const gameController = (function(
     t2 = players[1].token;
 
     if ((boardVals[0][0] == t1 && boardVals[0][1] == t1 && boardVals[0][2] == t1) ||
-        (boardVals[1][0] == t1 && boardVals[1][1] == t1 && boardVals[1][2] == t1) ||
-        (boardVals[2][0] == t1 && boardVals[2][1] == t1 && boardVals[2][2] == t1) ||
-        (boardVals[0][0] == t1 && boardVals[1][0] == t1 && boardVals[2][0] == t1) ||
-        (boardVals[0][1] == t1 && boardVals[1][1] == t1 && boardVals[2][1] == t1) ||
-        (boardVals[2][0] == t1 && boardVals[2][1] == t1 && boardVals[2][2] == t1) ||
-        (boardVals[0][0] == t1 && boardVals[1][1] == t1 && boardVals[2][2] == t1) ||
-        (boardVals[0][2] == t1 && boardVals[1][1] == t1 && boardVals[2][0] == t1)) { 
+      (boardVals[1][0] == t1 && boardVals[1][1] == t1 && boardVals[1][2] == t1) ||
+      (boardVals[2][0] == t1 && boardVals[2][1] == t1 && boardVals[2][2] == t1) ||
+      (boardVals[0][0] == t1 && boardVals[1][0] == t1 && boardVals[2][0] == t1) ||
+      (boardVals[0][1] == t1 && boardVals[1][1] == t1 && boardVals[2][1] == t1) ||
+      (boardVals[2][0] == t1 && boardVals[2][1] == t1 && boardVals[2][2] == t1) ||
+      (boardVals[0][0] == t1 && boardVals[1][1] == t1 && boardVals[2][2] == t1) ||
+      (boardVals[0][2] == t1 && boardVals[1][1] == t1 && boardVals[2][0] == t1)) {
 
-        return `${players[0].name} wins!`;
+      return `${players[0].name} wins!`;
     }
-    
+
     if ((boardVals[0][0] == t2 && boardVals[0][1] == t2 && boardVals[0][2] == t2) ||
-        (boardVals[1][0] == t2 && boardVals[1][1] == t2 && boardVals[1][2] == t2) ||
-        (boardVals[2][0] == t2 && boardVals[2][1] == t2 && boardVals[2][2] == t2) ||
-        (boardVals[0][0] == t2 && boardVals[1][0] == t2 && boardVals[2][0] == t2) ||
-        (boardVals[0][1] == t2 && boardVals[1][1] == t2 && boardVals[2][1] == t2) ||
-        (boardVals[2][0] == t2 && boardVals[2][1] == t2 && boardVals[2][2] == t2) ||
-        (boardVals[0][0] == t2 && boardVals[1][1] == t2 && boardVals[2][2] == t2) ||
-        (boardVals[0][2] == t2 && boardVals[1][1] == t2 && boardVals[2][0] == t2)) { 
+      (boardVals[1][0] == t2 && boardVals[1][1] == t2 && boardVals[1][2] == t2) ||
+      (boardVals[2][0] == t2 && boardVals[2][1] == t2 && boardVals[2][2] == t2) ||
+      (boardVals[0][0] == t2 && boardVals[1][0] == t2 && boardVals[2][0] == t2) ||
+      (boardVals[0][1] == t2 && boardVals[1][1] == t2 && boardVals[2][1] == t2) ||
+      (boardVals[2][0] == t2 && boardVals[2][1] == t2 && boardVals[2][2] == t2) ||
+      (boardVals[0][0] == t2 && boardVals[1][1] == t2 && boardVals[2][2] == t2) ||
+      (boardVals[0][2] == t2 && boardVals[1][1] == t2 && boardVals[2][0] == t2)) {
 
-        return `${players[1].name} wins!`;
+      return `${players[1].name} wins!`;
     }
 
-    if ((boardVals[0][0] == t1 || boardVals[0][0] == t2) && 
-        (boardVals[0][1] == t1 || boardVals[0][1] == t2) && 
-        (boardVals[0][2] == t1 || boardVals[0][2] == t2) && 
-        (boardVals[1][0] == t1 || boardVals[1][0] == t2) && 
-        (boardVals[1][1] == t1 || boardVals[1][1] == t2) && 
-        (boardVals[1][2] == t1 || boardVals[1][2] == t2) && 
-        (boardVals[2][0] == t1 || boardVals[2][0] == t2) && 
-        (boardVals[2][1] == t1 || boardVals[2][1] == t2) && 
-        (boardVals[2][2] == t1 || boardVals[2][2] == t2)) { 
-        
-        return `${players[0].name} and ${players[1].name} tie!`;
+    if ((boardVals[0][0] == t1 || boardVals[0][0] == t2) &&
+      (boardVals[0][1] == t1 || boardVals[0][1] == t2) &&
+      (boardVals[0][2] == t1 || boardVals[0][2] == t2) &&
+      (boardVals[1][0] == t1 || boardVals[1][0] == t2) &&
+      (boardVals[1][1] == t1 || boardVals[1][1] == t2) &&
+      (boardVals[1][2] == t1 || boardVals[1][2] == t2) &&
+      (boardVals[2][0] == t1 || boardVals[2][0] == t2) &&
+      (boardVals[2][1] == t1 || boardVals[2][1] == t2) &&
+      (boardVals[2][2] == t1 || boardVals[2][2] == t2)) {
+
+      return `${players[0].name} and ${players[1].name} tie!`;
     }
 
     return false;
 
   }
 
-  return { playRound, getActivePlayer };
-  
+  return { playRound, getActivePlayer, setPlayerNames };
+
 })();
 
 
-function ScreenController() { 
+function ScreenController() {
   const playerTurnDiv = document.querySelector('.turn');
   const boardDiv = document.querySelector('.board');
-  const startResetBtn = document.querySelector('.start-reset');
 
-  // update screen method 
-  const updateScreen = () => { 
 
-    // clear the board 
+  const updateScreen = () => {
+    // clear board 
     boardDiv.textContent = "";
 
     // get the most up date board from game controller 
     const board = gameBoard.getBoard();
     const activePlayer = gameController.getActivePlayer();
 
-    // get active player and render it 
     playerTurnDiv.textContent = `${activePlayer.name}'s turn`;
-    
+
     // render each grid square in the DOM
     board.forEach((row, rowNum) => {
       row.forEach((cell, colNum) => {
@@ -201,13 +207,30 @@ function ScreenController() {
         cellButton.dataset.row = rowNum;
         cellButton.textContent = cell.getValue();
         boardDiv.appendChild(cellButton);
-    
+
       })
     })
   }
 
+  //
+  // const greyOutBoard = () => { 
+  //   const board = gameBoard.getBoard();
+
+  //   board.forEach((row, rowNum) => {
+  //     row.forEach((cell, colNum) => {
+
+  //       cellButton = document.querySelector()
+  //       cellButton.dataset.column = colNum;
+  //       cellButton.dataset.row = rowNum;
+  //       cellButton.textContent = cell.getValue();
+  //       boardDiv.appendChild(cellButton);
+
+  //     })
+  //   })
+  // }
+
   // board event listener 
-  function clickHandlerBoard(e) { 
+  function clickHandlerBoard(e) {
 
     const selectedColumn = e.target.dataset.column;
     const selectedRow = e.target.dataset.row;
@@ -215,21 +238,69 @@ function ScreenController() {
     // if column was clicked, don't do anything 
     if (!selectedColumn) return;
 
-    gameController.playRound(selectedColumn, selectedRow)
+    winResult = gameController.playRound(selectedColumn, selectedRow); 
+    if (winResult !== false) { 
+      showWinner(winResult);
+    }
     updateScreen();
   }
 
-  function resetGame() { 
+
+  const showWinner = (winnerResult) => {
+    const winnerDialog = document.querySelector("#winnerDialog");
+
+    winnerDialog.showModal();
+
+    const winText = document.querySelector(".winner-text");
+    winText.textContent = winnerResult;
+  }
+
+
+  boardDiv.addEventListener("click", clickHandlerBoard);
+
+  const playerNamesDialog = document.querySelector("#addPlayerDialog");
+  const startButton = document.querySelector(".start")
+  const resetBtn = document.querySelector('.reset');
+
+  startButton.addEventListener("click", () => {
+    playerNamesDialog.showModal();
+  });
+
+  resetBtn.addEventListener("click", () => {
     gameBoard.resetBoard();
     updateScreen();
-  }
+  });
 
-  boardDiv.addEventListener("click", clickHandlerBoard);  
-  startResetBtn.addEventListener("click", resetGame);
 
+
+  const confirmPlayersBtn = document.querySelector("#confirm-start-button");
+
+  confirmPlayersBtn.addEventListener("click", e => {
+    e.preventDefault();
+
+    const playerOneName = document.querySelector("#player-one").value;
+    const playerTwoName = document.querySelector("#player-two").value;
+
+    // set the player names 
+    gameController.setPlayerNames(playerOneName, playerTwoName);
+
+    // ungrey out the tic tac toe board TODO
+
+    // make start game invisible and reset button and player turn div visible
+    startButton.setAttribute("style", "display: none");
+    resetBtn.removeAttribute("style", "display: none");
+    playerTurnDiv.removeAttribute("style", "display: none");
+
+    // close dialog 
+    playerNamesDialog.close();
+  });
+
+  // grey out the tic tac toe board TODO:
+
+  // make the reset button and player turn div invisible when the page loads 
+  resetBtn.setAttribute("style", "display: none");
+  playerTurnDiv.setAttribute("style", "display: none");
   updateScreen();
-
-
 }
 
 

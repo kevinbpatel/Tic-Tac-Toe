@@ -1,21 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
   <title>Document</title>
 </head>
+
 <body>
-  
+
   <h1>Tic Tac Toe</h1>
 
   <div class="container">
     <div class="turn"></div>
     <div class="board"></div>
-    <button class="start-reset">restart</button>
+    <button class="reset">restart</button>
+    <button class="start">start</button>
   </div>
+
+  <dialog id="addPlayerDialog">
+    <div class="add-players-container">
+      <p class="dialog-title">Enter names:</p>
+      <form method="dialog" id="add-players-form">
+        <div class="form-group player-one">
+          <label for="player-one">Player One: </label>
+          <input type="text" name="player-one" id="player-one">
+        </div>
+        <div class="form-group player-two">
+          <label for="player-two">Player Two: </label>
+          <input type="text" name="player-two" id="player-two">
+        </div>
+        <button id="confirm-start-button">Start Game</button>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="winnerDialog">
+    <div class="winner-container">
+      <h2 class="winner-text"></h2>
+    </div>
+  </dialog>
 
   <script src="script.js"></script>
 </body>
+
 </html>
