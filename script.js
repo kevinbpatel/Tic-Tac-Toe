@@ -92,6 +92,8 @@ const gameController = (function () {
     players[1].name = playerTwoName;
   }
 
+  const getPlayers = () => players;
+
   // switch player turn function 
   const switchPlayerTurn = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
@@ -108,7 +110,7 @@ const gameController = (function () {
   const playRound = (row, col) => {
 
     while (gameBoard.addMark(row, col, getActivePlayer().token) === null) {
-      alert(`Invalid input. try again.`);
+      // alert(`Invalid input. try again.`);
       return;
     };
 
@@ -143,7 +145,7 @@ const gameController = (function () {
       (boardVals[0][0] == t1 && boardVals[1][1] == t1 && boardVals[2][2] == t1) ||
       (boardVals[0][2] == t1 && boardVals[1][1] == t1 && boardVals[2][0] == t1)) {
 
-      return `${players[0].name} wins!`;
+      return 1;
     }
 
     if ((boardVals[0][0] == t2 && boardVals[0][1] == t2 && boardVals[0][2] == t2) ||
@@ -155,7 +157,7 @@ const gameController = (function () {
       (boardVals[0][0] == t2 && boardVals[1][1] == t2 && boardVals[2][2] == t2) ||
       (boardVals[0][2] == t2 && boardVals[1][1] == t2 && boardVals[2][0] == t2)) {
 
-      return `${players[1].name} wins!`;
+      return 2;
     }
 
     if ((boardVals[0][0] == t1 || boardVals[0][0] == t2) &&
@@ -168,14 +170,13 @@ const gameController = (function () {
       (boardVals[2][1] == t1 || boardVals[2][1] == t2) &&
       (boardVals[2][2] == t1 || boardVals[2][2] == t2)) {
 
-      return `${players[0].name} and ${players[1].name} tie!`;
+      return 0;
     }
-
     return false;
 
   }
 
-  return { playRound, getActivePlayer, setPlayerNames };
+  return { playRound, getActivePlayer, setPlayerNames, getPlayers };
 
 })();
 
@@ -183,7 +184,6 @@ const gameController = (function () {
 function ScreenController() {
   const playerTurnDiv = document.querySelector('.turn');
   const boardDiv = document.querySelector('.board');
-
 
   const updateScreen = () => {
     // clear board 
@@ -201,11 +201,30 @@ function ScreenController() {
 
         // add cells that also act as buttons 
         const cellButton = document.createElement("button");
+        cellButton.style.backgroundColor = "rgb(61, 53, 47)";
+        cellButton.style.boxShadow = "none";
+        cellButton.style.border = "none";
 
         // add data to cells to identify the columns 
         cellButton.dataset.column = colNum;
         cellButton.dataset.row = rowNum;
-        cellButton.textContent = cell.getValue();
+
+        cellValue = cell.getValue();
+
+        // render icons on the board
+        const markIcon = document.createElement("img");
+        if (cellValue === 1) { 
+          markIcon.src = "images/o.svg";
+          markIcon.style.fill = "blue";
+          markIcon.style.height = '80px';
+          markIcon.style.width = '80px';
+        } else if (cellValue === 2) { 
+          markIcon.src = "images/x.svg";
+          markIcon.style.height = '95px';
+          markIcon.style.width = '95px';
+        }
+
+        cellButton.appendChild(markIcon);
         boardDiv.appendChild(cellButton);
 
       })
@@ -218,7 +237,6 @@ function ScreenController() {
 
   // board event listener 
   function clickHandlerBoard(e) {
-
     const selectedColumn = e.target.dataset.column;
     const selectedRow = e.target.dataset.row;
 
@@ -227,65 +245,66 @@ function ScreenController() {
 
     winResult = gameController.playRound(selectedColumn, selectedRow); 
     if (winResult !== false) { 
+      updateScreen();
       showWinner(winResult);
+      return;
     }
     updateScreen();
   }
 
-
   const showWinner = (winnerResult) => {
-    const winnerDialog = document.querySelector("#winnerDialog");
 
-    winnerDialog.showModal();
+    let players = gameController.getPlayers();
 
-    const winText = document.querySelector(".winner-text");
-    winText.textContent = winnerResult;
+    if (winnerResult === 1) { 
+      playerTurnDiv.textContent = `${players[0].name} Wins!`;
+      playerTurnDiv.style.color = "rgb(167, 196, 229)";
+    } else if (winnerResult === 2) { 
+      playerTurnDiv.textContent = `${players[0].name} Wins!`;
+      playerTurnDiv.style.color = "rgb(251, 230, 163)";
+    } else if (winnerResult === 0) { 
+      playerTurnDiv.textContent = `${players[0].name} and ${players[1].name} Tie.`;
+    }
+
+    playerTurnDiv.style.fontWeight = "bold";
+    
+    // disable board so players can't keep putting marks
+    boardDiv.removeEventListener("click", clickHandlerBoard);
   }
-
 
   boardDiv.addEventListener("click", clickHandlerBoard);
 
-  const playerNamesDialog = document.querySelector("#addPlayerDialog");
-  const startButton = document.querySelector(".start")
   const resetBtn = document.querySelector('.reset');
-
-  startButton.addEventListener("click", () => {
-    playerNamesDialog.showModal();
-  });
 
   resetBtn.addEventListener("click", () => {
     gameBoard.resetBoard();
     updateScreen();
-  });
+    playerTurnDiv.style.color = "rgb(185, 175, 166)";
+    playerTurnDiv.style.fontWeight = "normal";
 
+    // enable board in case it was diabled
+    boardDiv.addEventListener("click", clickHandlerBoard);
+  });
 
 
   const confirmPlayersBtn = document.querySelector("#confirm-start-button");
+  const addPlayersContainer = document.querySelector(".add-players-container");
 
-  confirmPlayersBtn.addEventListener("click", e => {
-    e.preventDefault();
-
+  confirmPlayersBtn.addEventListener("click", () => {
     const playerOneName = document.querySelector("#player-one").value;
     const playerTwoName = document.querySelector("#player-two").value;
 
-    // set the player names 
     gameController.setPlayerNames(playerOneName, playerTwoName);
 
-    // ungrey out the tic tac toe board TODO
-
     // make start game invisible and reset button and player turn div visible
-    startButton.setAttribute("style", "display: none");
+    addPlayersContainer.setAttribute("style", "display: none");
     resetBtn.removeAttribute("style", "display: none");
     playerTurnDiv.removeAttribute("style", "display: none");
 
-    // close dialog 
-    playerNamesDialog.close();
-
+    // make board visible and update it
     boardDiv.removeAttribute("style", "display: none");
     updateScreen();
   });
-
-  // grey out the tic tac toe board TODO:
 
   // make the reset button and player turn div invisible when the page loads 
   resetBtn.setAttribute("style", "display: none");

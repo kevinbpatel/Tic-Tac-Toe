@@ -1,24 +1,27 @@
 body { 
   margin: 0;
+  font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  background-color: rgb(61, 53, 47);
+  color: rgb(185, 175, 166);
 }
 
 .container { 
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-content: center;
+  align-items: center;
 }
-
 .board { 
   display: grid;
   height: 500px;
   width: 500px;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  border: 1px solid black;
+  border: none;
   gap: 2px;
-  padding: 2px;
-  background-color: red;
+  padding: 0px;
+  background-color: rgba(185, 175, 166, 0.459);
+  margin-top: 20px;
 }
 
 .cell { 
@@ -30,4 +33,37 @@ body {
   border: 1px solid grey;
   background: lightyellow;
   cursor: pointer;
+}
+
+#confirm-start-button, .reset { 
+  border: 1px solid rgb(185, 175, 166);
+  background-color: rgb(61, 53, 47);
+  color: rgb(185, 175, 166);
+  border-radius: 30px;
+  padding: 5px 10px;
+ 
+}
+
+.add-players-container { 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#add-players-form { 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+input { 
+  outline: none;
+  border: 1px solid rgb(185, 175, 166); 
+  background-color: rgb(61, 53, 47);
+  color: rgb(185, 175, 166);
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-left: 5px;
 }
